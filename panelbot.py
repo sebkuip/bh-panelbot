@@ -57,4 +57,14 @@ async def restart_server(interaction: discord.Interaction):
     else:
         await interaction.followup.send("Failed to restart the server.")
 
+@client.tree.command(name="stop", description="Stops the server")
+async def stop_server(interaction: discord.Interaction):
+    await interaction.response.send_message("Stopping the server...")
+    response, status = await client.bh_api_request("power", method="POST", data={"signal": "stop"})
+    print(response)
+    if status == 204:
+        await interaction.followup.send("Server stopped!")
+    else:
+        await interaction.followup.send("Failed to stop the server.")
+
 client.run(getenv("DISCORD_TOKEN"))
