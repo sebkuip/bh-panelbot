@@ -25,15 +25,18 @@ class PanelBot(discord.Client):
             "Accept": "application/json"
         }
 
+        url = f"{base_url}/{endpoint}" if endpoint else base_url
+        print(url)
+        print(data)
         async with aiohttp.ClientSession() as session:
             if method.upper() == "GET":
-                async with session.get(f"{base_url}/{endpoint}", headers=headers) as response:
+                async with session.get(url, headers=headers) as response:
                     return await response.json(), response.status
             elif method.upper() == "POST":
-                async with session.post(f"{base_url}/{endpoint}", headers=headers, json=data) as response:
+                async with session.post(url, headers=headers, json=data) as response:
                     return await response.json(), response.status
             elif method.upper() == "DELETE":
-                async with session.delete(f"{base_url}/{endpoint}", headers=headers) as response:
+                async with session.delete(url, headers=headers) as response:
                     return await response.json(), response.status
             else:
                 raise ValueError("Unsupported HTTP method.")
