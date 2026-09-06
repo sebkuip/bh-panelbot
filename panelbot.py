@@ -1,3 +1,5 @@
+import asyncio
+
 import aiohttp
 import discord
 from discord import app_commands
@@ -49,7 +51,12 @@ async def on_ready():
 
 @client.tree.command(name="restart", description="Restart the server")
 async def restart_server(interaction: discord.Interaction):
-    await interaction.response.send_message("Restarting the server...")
+    await interaction.response.send_message("Giving a 30 second countdown before restarting the server...")
+    response, status = await client.bh_api_request("command", method="POST", data={"command": "servermsg \"Server is restarting in 30 seconds! Please save your work and log out.\""})
+    await asyncio.sleep(30)
+    response, status = await client.bh_api_request("command", method="POST", data={"command": "save"})
+    await asyncio.sleep(5) # Wait for the save command to complete
+    await interaction.followup.send("Restarting the server...")
     response, status = await client.bh_api_request("power", method="POST", data={"signal": "restart"})
     if status == 204:
         await interaction.followup.send("Server restarted!")
@@ -59,6 +66,7 @@ async def restart_server(interaction: discord.Interaction):
 @client.tree.command(name="stop", description="Stops the server")
 async def stop_server(interaction: discord.Interaction):
     await interaction.response.send_message("Stopping the server...")
+    response, status = await client.bh_api_request("command", method="POST", data={"command": "save"})
     response, status = await client.bh_api_request("power", method="POST", data={"signal": "stop"})
     if status == 204:
         await interaction.followup.send("Server stopped!")
